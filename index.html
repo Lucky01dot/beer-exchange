@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pivní Burza Plzeň</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --gold: #D4A017;
+    --gold-light: #F2C94C;
+    --amber: #C87941;
+    --dark: #0D0A06;
+    --dark2: #1A1409;
+    --dark3: #251C0E;
+    --cream: #F5EDD6;
+    --green: #27AE60;
+    --red: #E74C3C;
+    --muted: #8A7A5A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--dark);
+    color: var(--cream);
+    font-family: 'Source Sans 3', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(212,160,23,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(200,121,65,0.05) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A017' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid rgba(212,160,23,0.3);
+    background: linear-gradient(180deg, rgba(13,10,6,0.95) 0%, rgba(13,10,6,0.8) 100%);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    padding: 0 2rem;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.2rem;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(212,160,23,0.4);
+  }
+
+  .logo span { color: var(--cream); }
+
+  .ticker-wrap {
+    flex: 1;
+    margin: 0 3rem;
+    overflow: hidden;
+    height: 70px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ticker {
+    display: flex;
+    gap: 3rem;
+    animation: ticker 25s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-item {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ticker-name { color: var(--muted); font-weight: 300; }
+  .ticker-price { color: var(--cream); font-weight: 600; }
+  .ticker-change.up { color: var(--green); }
+  .ticker-change.down { color: var(--red); }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .time-display {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .time-display #clock {
+    color: var(--gold);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* MAIN */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  /* HERO stats */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: rgba(212,160,23,0.15);
+    border: 1px solid rgba(212,160,23,0.15);
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-box {
+    background: var(--dark2);
+    padding: 1.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat-box:hover::after { opacity: 1; }
+
+  .stat-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.5rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  /* BEER GRID */
+  .beer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .beer-card {
+    background: var(--dark2);
+    border: 1px solid rgba(212,160,23,0.12);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .beer-card:hover {
+    border-color: rgba(212,160,23,0.45);
+    transform: translateY(-2px);
+  }
+
+  .beer-card.trending-up { border-color: rgba(39,174,96,0.35); }
+  .beer-card.trending-down { border-color: rgba(231,76,60,0.35); }
+
+  .beer-card-top {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(212,160,23,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .beer-icon {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+  }
+
+  .beer-logo-wrap {
+    width: 72px;
+    height: 72px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .beer-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+    mix-blend-mode: screen;
+    -webkit-mix-blend-mode: screen;
+  }
+
+  .beer-logo-fallback {
+    display: none;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    color: white;
+  }
+  .beer-emoji-icon {
+    font-size: 2.4rem;
+    font-family: sans-serif;
+    letter-spacing: 0;
+  }
+
+  .beer-badge {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    padding: 0.2rem 0.6rem;
+    background: rgba(212,160,23,0.1);
+    border: 1px solid rgba(212,160,23,0.3);
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .beer-badge.hot {
+    background: rgba(231,76,60,0.1);
+    border-color: rgba(231,76,60,0.4);
+    color: #E74C3C;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .beer-card-mid {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .beer-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--cream);
+    margin-bottom: 0.2rem;
+  }
+
+  .beer-type {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+
+  .price-display {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+  }
+
+  .current-price {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3rem;
+    color: var(--gold);
+    line-height: 1;
+    transition: color 0.3s;
+  }
+
+  .beer-card.trending-up .current-price { color: var(--green); }
+  .beer-card.trending-down .current-price { color: var(--red); }
+
+  .price-unit {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .price-change {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.1rem 0.4rem;
+    margin-left: auto;
+  }
+
+  .price-change.up { color: var(--green); }
+  .price-change.down { color: var(--red); }
+
+  /* Mini chart */
+  .mini-chart {
+    height: 40px;
+    padding: 0 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .mini-chart svg { width: 100%; height: 100%; }
+
+  /* Beer card bottom */
+  .beer-card-bot {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(212,160,23,0.08);
+  }
+
+  .orders-info {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .orders-info strong {
+    color: var(--cream);
+    font-weight: 600;
+  }
+
+  .order-btn {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 1.2rem;
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .order-btn:hover {
+    background: var(--gold-light);
+    transform: scale(1.03);
+  }
+
+  .order-btn:active { transform: scale(0.97); }
+
+  /* MARKET TABLE */
+  .section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    color: var(--cream);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(212,160,23,0.2);
+  }
+
+  .section-title span { color: var(--gold); }
+
+  .market-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--dark2);
+    border: 1px solid rgba(212,160,23,0.12);
+    margin-bottom: 3rem;
+  }
+
+  .market-table th {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.8rem 1.2rem;
+    text-align: left;
+    background: rgba(212,160,23,0.05);
+    border-bottom: 1px solid rgba(212,160,23,0.15);
+  }
+
+  .market-table td {
+    padding: 0.9rem 1.2rem;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .market-table tr:hover td { background: rgba(212,160,23,0.04); }
+  .market-table tr:last-child td { border-bottom: none; }
+
+  .td-name { font-weight: 600; color: var(--cream); }
+  .td-price { font-size: 1.05rem; color: var(--gold); font-weight: 700; }
+  .td-change.up { color: var(--green); }
+  .td-change.down { color: var(--red); }
+  .td-volume { color: var(--muted); font-weight: 300; }
+  .td-min { color: var(--green); }
+  .td-max { color: var(--red); }
+
+  /* CRASH EVENT */
+  .crash-banner {
+    display: none;
+    position: fixed;
+    top: 70px; left: 0; right: 0;
+    background: rgba(231,76,60,0.95);
+    color: white;
+    text-align: center;
+    padding: 0.8rem;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    z-index: 100;
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* TOAST */
+  #toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    z-index: 999;
+  }
+
+  .toast {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    padding: 0.8rem 1.5rem;
+    background: var(--dark3);
+    border-left: 3px solid var(--gold);
+    color: var(--cream);
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+    min-width: 250px;
+  }
+
+  .toast.success { border-color: var(--green); }
+  .toast.crash { border-color: var(--red); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes toastOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 5;
+    border-top: 1px solid rgba(212,160,23,0.15);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* RESPONSIVE */
+
+  /* Tablet landscape (<1100px) */
+  @media (max-width: 1100px) {
+    .beer-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .hero-stats { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  /* Tablet portrait (<900px) */
+  @media (max-width: 900px) {
+    main { padding: 1.5rem; }
+    .header-inner { height: 60px; }
+    .logo { font-size: 1.7rem; }
+    .ticker-wrap { display: none; }
+    .hero-stats { grid-template-columns: repeat(3, 1fr); }
+    .stat-box { padding: 1rem 1.2rem; }
+    .stat-value { font-size: 2rem; }
+    .beer-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .current-price { font-size: 2.4rem; }
+
+    /* Table: hide less important columns */
+    .market-table th:nth-child(4),
+    .market-table td:nth-child(4) { display: none; }
+  }
+
+  /* Mobile large (<600px) */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    main { padding: 1rem; }
+    .header-inner { height: 56px; }
+    .logo { font-size: 1.4rem; }
+    .time-display { font-size: 0.75rem; }
+    #clock { font-size: 0.85rem !important; }
+
+    .hero-stats { grid-template-columns: 1fr 1fr; gap: 1px; }
+    .stat-box { padding: 0.9rem 1rem; }
+    .stat-value { font-size: 1.7rem; }
+    .stat-label { font-size: 0.6rem; }
+    .stat-sub { font-size: 0.7rem; }
+
+    .beer-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem; }
+    .beer-card-top { padding: 1rem; }
+    .beer-logo-wrap { width: 52px; height: 52px; }
+    .beer-logo-fallback { width: 52px; height: 52px; font-size: 1.1rem; }
+    .beer-emoji-icon { font-size: 1.8rem; }
+    .beer-card-mid { padding: 0.8rem 1rem; }
+    .beer-name { font-size: 1.1rem; }
+    .beer-type { font-size: 0.72rem; margin-bottom: 0.6rem; }
+    .current-price { font-size: 2rem; }
+    .price-unit { font-size: 0.8rem; }
+    .price-change { font-size: 0.75rem; }
+    .mini-chart { height: 32px; padding: 0 1rem; }
+    .beer-card-bot { padding: 0.75rem 1rem; }
+    .orders-info { font-size: 0.68rem; }
+    .order-btn { font-size: 0.78rem; padding: 0.45rem 0.9rem; }
+
+    /* Table: scrollable horizontally */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .market-table { min-width: 480px; font-size: 0.8rem; }
+    .market-table th,
+    .market-table td { padding: 0.6rem 0.8rem; }
+    .td-price { font-size: 0.9rem; }
+
+    .section-title { font-size: 1.4rem; margin-bottom: 1rem; }
+    #toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
+    .toast { min-width: unset; width: 100%; font-size: 0.82rem; }
+  }
+
+  /* Mobile small (<400px) */
+  @media (max-width: 400px) {
+    .hero-stats { grid-template-columns: 1fr 1fr; }
+    .beer-grid { grid-template-columns: 1fr; }
+    .stat-value { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="crash-banner" id="crashBanner">
+   BURZOVNÍ KRACH! Ceny padají na minimum! Objednávejte hned!
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">Pivní<span>Burza</span></div>
+    <div class="ticker-wrap">
+      <div class="ticker" id="tickerEl"></div>
+    </div>
+    <div class="time-display">
+      Plzeň &nbsp;|&nbsp; <span id="clock">--:--:--</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Hero Stats -->
+  <div class="hero-stats">
+    <div class="stat-box">
+      <div class="stat-label">Celkem objednávek dnes</div>
+      <div class="stat-value" id="statOrders">0</div>
+      <div class="stat-sub">od otevření restaurace</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Nejoblíbenější pivo</div>
+      <div class="stat-value" id="statTop" style="font-size:1.6rem; padding-top:0.4rem">—</div>
+      <div class="stat-sub" id="statTopSub">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Nejoblíbenější drink</div>
+      <div class="stat-value" id="statTopDrink" style="font-size:1.6rem; padding-top:0.4rem">—</div>
+      <div class="stat-sub" id="statTopDrinkSub">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Nejnižší cena dnes</div>
+      <div class="stat-value" id="statMin">—</div>
+      <div class="stat-sub" id="statMinSub">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Burzovních krachů</div>
+      <div class="stat-value" id="statCrash">0</div>
+      <div class="stat-sub">ceny padly na minimum</div>
+    </div>
+  </div>
+
+  <!-- Beer Cards -->
+  <div class="section-label">Živé kurzy piv // Klikni pro objednávku</div>
+  <div class="beer-grid" id="beerGrid"></div>
+
+  <!-- Market Table -->
+  <div class="section-title"><span>Tržní</span> přehled</div>
+  <div class="table-wrap"><table class="market-table">
+    <thead>
+      <tr>
+        <th>Název</th>
+        <th>Typ</th>
+        <th>Akt. cena</th>
+        <th>Změna</th>
+        <th>Objednávky</th>
+        <th>Min. dnes</th>
+        <th>Max. dnes</th>
+      </tr>
+    </thead>
+    <tbody id="marketTbody"></tbody>
+  </table>
+  </div>
+</main>
+
+<div id="toast-container"></div>
+
+<footer>
+  Pivní Burza Plzeň &copy; 2026 &nbsp;|&nbsp; Made By Jan Čácha &nbsp;|&nbsp; Školní projekt
+</footer>
+
+<script>
+const BEERS = [
+  { id:1,  name:"Starobrno",        type:"Ležák 10°",        basePrice:35,  badge:"",        logoFallback:"SB",  logoBg:"#1a3a6b" },
+  { id:2,  name:"Pilsner Urquell",  type:"Světlý ležák 12°", basePrice:52,  badge:"premium", logoFallback:"PU",  logoBg:"#003087" },
+  { id:3,  name:"Kozel",            type:"Tmavý ležák 11°",  basePrice:42,  badge:"",        logoFallback:"KZ",  logoBg:"#5c3317" },
+  { id:4,  name:"Budvar",           type:"Světlý ležák 12°", basePrice:48,  badge:"",        logoFallback:"BV",  logoBg:"#c41e3a" },
+  { id:5,  name:"Bernard",          type:"Nefiltrovaný 12°", basePrice:55,  badge:"premium", logoFallback:"BE",  logoBg:"#2c5f2e" },
+  { id:6,  name:"Zlatopramen",      type:"Radler citrus",    basePrice:38,  badge:"",        logoFallback:"ZP",  logoBg:"#e8a000" },
+  { id:7,  name:"Gin Tonic",        type:"Koktejl",          basePrice:120, badge:"",        logoFallback:"GT",  logoBg:"#2e7d6b" },
+  { id:8,  name:"Tequila Sunrise",  type:"Koktejl",          basePrice:135, badge:"premium", logoFallback:"TS",  logoBg:"#c45e00" },
+  { id:9,  name:"Sex on the Beach", type:"Koktejl",          basePrice:130, badge:"",        logoFallback:"SB2", logoBg:"#b52d6a" },
+  { id:10, name:"Jack & Coke",      type:"Koktejl",          basePrice:115, badge:"",        logoFallback:"JC",  logoBg:"#1c0f05" },
+];
+
+const PRICE_STEP = 2;
+const DECAY_AMOUNT = 1;
+const CRASH_THRESHOLD = 0.75;
+
+let totalOrders = 0;
+let totalCrashes = 0;
+
+const state = BEERS.map(b => ({
+  ...b,
+  price: b.basePrice,
+  prevPrice: b.basePrice,
+  history: Array(20).fill(b.basePrice),
+  orders: 0,
+  minToday: b.basePrice,
+  maxToday: b.basePrice,
+}));
+
+// HELPERS
+const fmt = p => `${Math.round(p)} Kč`;
+const pad = n => n < 10 ? `0${n}` : `${n}`;
+const pct = (curr, prev) => prev === 0 ? 0 : ((curr - prev) / prev * 100).toFixed(1);
+
+// CLOCK
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+// SPARKLINE
+function sparklinePath(history, w, h) {
+  let minV = Math.min(...history) - 1;
+  let maxV = Math.max(...history) + 1;
+  const range = maxV - minV || 1;
+  return history.map((v, i) => {
+    const x = (i / (history.length - 1)) * w;
+    const y = h - ((v - minV) / range) * h;
+    return `${x},${y}`;
+  }).join(' ');
+}
+
+// RENDER
+function renderCards() {
+  const grid = document.getElementById('beerGrid');
+  grid.innerHTML = '';
+  const maxOrders = Math.max(...state.map(b => b.orders));
+
+  state.forEach(b => {
+    const change = parseFloat(pct(b.price, b.prevPrice));
+    const isHot = b.orders === maxOrders && b.orders > 0;
+    const badgeText = isHot ? 'HOT' : (b.badge === 'premium' ? 'PREMIUM' : '');
+    const trendClass = change > 0 ? 'trending-up' : change < 0 ? 'trending-down' : '';
+    const W = 240, H = 40;
+    const pts = sparklinePath(b.history, W, H);
+    const lineColor = change >= 0 ? '#27AE60' : '#E74C3C';
+
+    const card = document.createElement('div');
+    card.className = `beer-card${trendClass ? ' ' + trendClass : ''}`;
+
+    // Logo
+    const logoWrap = document.createElement('div');
+    logoWrap.className = 'beer-logo-wrap';
+    const fb = document.createElement('div');
+    fb.className = 'beer-logo-fallback';
+    fb.style.cssText = `background:${b.logoBg};display:flex`;
+    fb.textContent = b.logoFallback;
+    logoWrap.appendChild(fb);
+
+    // Top
+    const cardTop = document.createElement('div');
+    cardTop.className = 'beer-card-top';
+    cardTop.appendChild(logoWrap);
+    if (badgeText) {
+      const bdg = document.createElement('div');
+      bdg.className = `beer-badge${isHot ? ' hot' : ''}`;
+      bdg.textContent = badgeText;
+      cardTop.appendChild(bdg);
+    }
+
+    // SVG sparkline
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    const p1 = document.createElementNS(svgNS, 'polyline');
+    p1.setAttribute('points', pts);
+    p1.setAttribute('fill', 'none');
+    p1.setAttribute('stroke', lineColor);
+    p1.setAttribute('stroke-width', '2');
+    p1.setAttribute('stroke-linejoin', 'round');
+    const p2 = document.createElementNS(svgNS, 'polyline');
+    p2.setAttribute('points', `0,${H} ${pts} ${W},${H}`);
+    p2.setAttribute('fill', lineColor);
+    p2.setAttribute('fill-opacity', '0.1');
+    p2.setAttribute('stroke', 'none');
+    svg.appendChild(p1);
+    svg.appendChild(p2);
+    const mc = document.createElement('div');
+    mc.className = 'mini-chart';
+    mc.appendChild(svg);
+
+    const changeStr = `${change >= 0 ? '▲' : '▼'}${Math.abs(change)}%`;
+    const changeClass = change >= 0 ? 'up' : 'down';
+    const priceUnit = b.type === 'Koktejl' ? 'Kč / drink' : 'Kč / 0.5l';
+
+    card.innerHTML = `
+      <div class="beer-card-mid">
+        <div class="beer-name">${b.name}</div>
+        <div class="beer-type">${b.type}</div>
+        <div class="price-display">
+          <div class="current-price">${Math.round(b.price)}</div>
+          <div class="price-unit">${priceUnit}</div>
+          <div class="price-change ${changeClass}">${changeStr}</div>
+        </div>
+      </div>
+      <div class="beer-card-bot">
+        <div class="orders-info">Objednávek: <strong>${b.orders}</strong></div>
+        <button class="order-btn" onclick="orderBeer(${b.id})">Objednat</button>
+      </div>`;
+
+    card.insertBefore(mc, card.firstChild);
+    card.insertBefore(cardTop, card.firstChild);
+    grid.appendChild(card);
+  });
+}
+
+function renderTable() {
+  const tbody = document.getElementById('marketTbody');
+  tbody.innerHTML = '';
+  const sorted = [...state].sort((a, b) => b.orders - a.orders);
+  sorted.forEach(b => {
+    const change = parseFloat(pct(b.price, b.prevPrice));
+    const cs = `${change >= 0 ? '▲ +' : '▼ '}${Math.abs(change)}%`;
+    const cc = change >= 0 ? 'up' : 'down';
+    const logo = `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:${b.logoBg};color:#fff;font-size:0.6rem;font-weight:700;margin-right:6px;vertical-align:middle">${b.logoFallback}</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-name">${logo}${b.name}</td>
+      <td style="color:var(--muted);font-weight:300">${b.type}</td>
+      <td class="td-price">${fmt(b.price)}</td>
+      <td class="td-change ${cc}">${cs}</td>
+      <td class="td-volume">${b.orders}×</td>
+      <td class="td-min">${fmt(b.minToday)}</td>
+      <td class="td-max">${fmt(b.maxToday)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderTicker() {
+  const items = state.map(b => {
+    const change = parseFloat(pct(b.price, b.prevPrice));
+    const cls = change >= 0 ? 'up' : 'down';
+    const arrow = change >= 0 ? '▲' : '▼';
+    const logo = `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:${b.logoBg};color:#fff;font-size:0.55rem;font-weight:700;margin-right:4px;vertical-align:middle">${b.logoFallback}</span>`;
+    return `<span class="ticker-item">${logo}<span class="ticker-name">${b.name.toUpperCase()}</span><span class="ticker-price">${fmt(b.price)}</span><span class="ticker-change ${cls}">${arrow}${Math.abs(change)}%</span></span>`;
+  });
+  document.getElementById('tickerEl').innerHTML = [...items, ...items].join('');
+}
+
+function renderStats() {
+  document.getElementById('statOrders').textContent = totalOrders;
+  document.getElementById('statCrash').textContent = totalCrashes;
+
+  const beers = state.filter(b => b.type !== 'Koktejl');
+  const drinks = state.filter(b => b.type === 'Koktejl');
+
+  const topBeer = beers.reduce((a, b) => b.orders > a.orders ? b : a, beers[0]);
+  document.getElementById('statTop').textContent = topBeer?.orders > 0 ? topBeer.name : '—';
+  document.getElementById('statTopSub').textContent = topBeer?.orders > 0 ? `${topBeer.orders} obj.` : 'zatím nic';
+
+  const topDrink = drinks.reduce((a, b) => b.orders > a.orders ? b : a, drinks[0]);
+  document.getElementById('statTopDrink').textContent = topDrink?.orders > 0 ? topDrink.name : '—';
+  document.getElementById('statTopDrinkSub').textContent = topDrink?.orders > 0 ? `${topDrink.orders} obj.` : 'zatím nic';
+
+  const minBeer = state.reduce((a, b) => b.minToday < a.minToday ? b : a, state[0]);
+  document.getElementById('statMin').textContent = fmt(minBeer.minToday);
+  document.getElementById('statMinSub').textContent = minBeer.name;
+}
+
+function renderAll() {
+  renderCards();
+  renderTable();
+  renderTicker();
+  renderStats();
+}
+
+// ORDER
+function orderBeer(id) {
+  const b = state.find(x => x.id === id);
+  if (!b) return;
+
+  b.prevPrice = b.price;
+  b.price = Math.min(b.basePrice * 2, b.price + PRICE_STEP);
+  b.history.push(b.price);
+  b.history.shift();
+  b.orders++;
+  b.maxToday = Math.max(b.maxToday, b.price);
+  totalOrders++;
+
+  state.forEach(o => {
+    if (o.id === id) return;
+    o.prevPrice = o.price;
+    o.price = Math.max(Math.round(o.basePrice * CRASH_THRESHOLD), o.price - DECAY_AMOUNT);
+    o.history.push(o.price);
+    o.history.shift();
+    o.minToday = Math.min(o.minToday, o.price);
+  });
+
+  toast(`${b.name} objednáno! Nová cena: ${fmt(b.price)}`, 'success');
+  renderAll();
+}
+
+// TOAST
+function toast(msg, type = '') {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast${type ? ' ' + type : ''}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  updateClock();
+  setInterval(updateClock, 1000);
+  renderAll();
+});
+</script>
+</body>
+</html>
